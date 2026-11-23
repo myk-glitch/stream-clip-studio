@@ -56,6 +56,7 @@ def send(kind, payload, files=()):
         print(f"discord {kind}: not configured, skipped")
         return False
     payload.setdefault("username", bot())
+    payload.setdefault("allowed_mentions", {"parse": []})    # clip text can never ping @everyone, roles or users
     multipart = {"payload_json": (None, json.dumps(payload), "application/json")}
     handles = []
     try:

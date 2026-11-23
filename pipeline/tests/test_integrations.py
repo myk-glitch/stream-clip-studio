@@ -129,6 +129,18 @@ def test_discord_errors_hide_the_webhook(monkeypatch):
     assert "hook-secret" not in str(e.value) and e.value.__suppress_context__
 
 
+def test_discord_messages_cannot_ping_anyone(monkeypatch):
+    monkeypatch.setenv("DISCORD_WEBHOOK_POSTED", WEBHOOK)
+    sent = []
+
+    def post(url, files=None, timeout=None):
+        sent.append(files["payload_json"][1])
+        return Response(200)
+    monkeypatch.setattr(requests, "post", post)
+    assert notify.send("posted", {"content": "@everyone look"})
+    assert '"allowed_mentions": {"parse": []}' in sent[0]
+
+
 def test_discord_retries_large_upload_with_thumbnail_only(monkeypatch, tmp_path):
     monkeypatch.setenv("DISCORD_WEBHOOK_TOPOST", WEBHOOK)
     a, b = tmp_path / "t.jpg", tmp_path / "v.mp4"

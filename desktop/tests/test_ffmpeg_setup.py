@@ -61,11 +61,12 @@ def test_checksum_mismatch_leaves_nothing(tmp_path):
     assert not (tmp_path / "9.9.9").exists() and not list(tmp_path.glob("*.part"))
 
 
-def test_unsafe_archive_paths_rejected(tmp_path):
-    payload = _zip({"../../evil.exe": b"x", "x/bin/ffmpeg.exe": b"y"})
+@pytest.mark.parametrize("member", ["../../evil.exe", "../9.9.9.extracting-evil/evil.exe"])
+def test_unsafe_archive_paths_rejected(tmp_path, member):
+    payload = _zip({member: b"x", "x/bin/ffmpeg.exe": b"y"})
     with pytest.raises(fs.InstallError, match="unsafe"):
         fs.install(tmp_path, _build(payload), transport=_transport(payload))
-    assert not (tmp_path.parent / "evil.exe").exists()
+    assert not (tmp_path.parent / "evil.exe").exists() and not (tmp_path / "9.9.9.extracting-evil").exists()
 
 
 def test_pinned_constant_matches_known_release():

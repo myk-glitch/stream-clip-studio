@@ -83,9 +83,9 @@ def install(dest_root: Path, build: PinnedBuild = PINNED,
         tmp_dir = dest_root / f"{build.version}.extracting"
         shutil.rmtree(tmp_dir, ignore_errors=True)
         with zipfile.ZipFile(archive) as z:
+            safe_root = tmp_dir.resolve()
             for member in z.namelist():
-                resolved = (tmp_dir / member).resolve()
-                if not str(resolved).startswith(str(tmp_dir.resolve())):
+                if not (tmp_dir / member).resolve().is_relative_to(safe_root):
                     raise InstallError("archive contains unsafe paths")
             z.extractall(tmp_dir)
         found = next(tmp_dir.rglob("ffmpeg.exe"), None)
