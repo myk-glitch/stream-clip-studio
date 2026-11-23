@@ -1,0 +1,74 @@
+# Stream Clip Studio pipeline settings. Copy to config.toml (or run: python configure.py init).
+# config.toml is ignored by git. Never put passwords, API keys, tokens or webhook URLs here: those go in .env
+# or the OS keychain. Full reference: ../docs/configuration.md
+
+[brand]
+name = "My Clips"                     # shown on Discord messages
+
+[paths]                               # relative paths are inside the pipeline folder
+clips_dir = "clips"
+logs_dir = "logs"
+state_dir = ".state"
+sfx_dir = "sfx"                       # your own sound effects (see sfx/README.md)
+
+[game]
+name = ""                             # only auto-watch this Twitch category, e.g. "Grand Theft Auto VI". Empty = any game
+tag = ""                              # hashtag for that game, without #, e.g. "GTA6"
+
+[watcher]
+model = "base"                        # Whisper: tiny, base, small, medium, large-v3
+before = 30                           # seconds kept before a chat spike
+after = 10                            # seconds kept after it
+max_extend = 25                       # extra seconds while chat stays hot
+cooldown = 180                        # minimum seconds between clips
+hours = 12                            # stop watching after this long
+extra_args = []                       # more live_clipper.py options, e.g. ["--realism"]
+
+[posting]
+privacy = "private"                   # private, unlisted or public. Start private until you trust your setup
+max_posts_per_day = 2
+min_hours_between_posts = 4
+title_template = "{hook} #{tag} #{game_tag}"
+description_footer = ""               # an extra line for every YouTube description
+youtube_tags = ["{tag}", "{game_tag}", "Shorts", "gaming"]
+tiktok_tags = ["{tag}", "{game_tag}", "gaming", "fyp"]
+default_tags = ["gaming", "streamer"] # used when a post has no --streamer
+youtube_category_id = "20"            # 20 = Gaming
+
+[auto_post]                           # post_queue.py publishes queued clips on your schedule
+enabled = false
+start_hour = 9                        # local time; the window may cross midnight
+end_hour = 22
+
+[tiktok]
+mode = "manual"                       # manual = a ready-to-post pack you upload in the app
+profile = ""                          # your public handle, only used by tiktok_profile_stats
+autotok_account = ""                  # only for the unofficial autotok mode
+autotok_path = ""
+
+[unofficial]                          # OFF by default. These can break at any time and may violate platform terms
+twitch_chat_replay = false            # VOD chat scan and exact rewind, through Twitch's private web API
+tiktok_autotok = false                # automatic TikTok upload through the third-party autotok tool
+tiktok_profile_stats = false          # read follower and like totals from your public TikTok page
+
+# One block per streamer you have permission to clip. The name after "streamers." is their lowercase Twitch login.
+[streamers.example_streamer]
+tag = "EXAMPLE"                       # hashtag and short name used with --streamer
+display_name = "Example Streamer"
+color = "#9146FF"
+emoji = "🟣"
+campaign = ""                         # optional label shown on Discord
+cta = ""                              # optional line added to captions, e.g. "twitch.tv/example_streamer"
+watch = false                         # true = live alerts and automatic watcher
+min_msgs = 20                         # smaller channels need a lower value (8 to 10)
+cam = [0, 0, 384, 216]                # facecam box [x, y, width, height] in a 1280x720 frame
+game = [400, 130, 700, 560]           # gameplay box for the bottom half
+
+# Optional: track paid clipping campaigns in the daily recap. Remove if you don't use them.
+# [campaigns.example]
+# name = "Example campaign"
+# match = "example"                   # posts whose title contains this word count toward it
+# kind = "cpm"                        # cpm = paid per 1,000 views; pool = a share of a prize pool
+# rate_per_1k = 1.0
+# min_views = 10000                   # clips below this pay nothing
+# pool_threshold = 0                  # for kind = "pool": total views needed

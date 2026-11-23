@@ -1,0 +1,50 @@
+# Secrets and personal settings: never commit these
+.env
+.env.*
+!.env.example
+pipeline/config.toml
+client_secret*.json
+credentials*.json
+token*.json
+*.pem
+*.key
+
+# Generated clips, media and run data
+pipeline/clips/
+pipeline/logs/
+pipeline/.state/
+pipeline/vod_scans/
+pipeline/sfx/*
+!pipeline/sfx/README.md
+desktop/test_media/*.mp4
+*.mp4
+*.mkv
+*.mov
+*.ts
+*.mp3
+*.wav
+*.log
+*.db
+*.sqlite
+*.sqlite3
+posted_log.csv
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
