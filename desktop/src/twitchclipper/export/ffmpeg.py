@@ -30,6 +30,21 @@ class FfmpegInstall:
     encoders: set[str] = field(default_factory=set)
 
 
+def real_executable(path: Path) -> Path:
+    """The ffmpeg behind a Chocolatey or Scoop shim. A shim runs ffmpeg as a child process, so
+    stopping the shim can leave ffmpeg running and still holding the files it was writing."""
+    root = path.parent.parent
+    location = (root.name.lower(), path.parent.name.lower())
+    if location == ("chocolatey", "bin"):
+        pattern = root / "lib" / "ffmpeg*" / "tools" / "**" / path.name
+    elif location == ("scoop", "shims"):
+        pattern = root / "apps" / "ffmpeg*" / "current" / "bin" / path.name
+    else:
+        return path
+    matches = sorted(glob.glob(str(pattern), recursive=True))
+    return Path(matches[0]) if matches else path
+
+
 def _candidates() -> list[tuple[Path, str]]:
     found: list[tuple[Path, str]] = []
     env = os.environ.get("TWITCHCLIPPER_FFMPEG")
@@ -64,6 +79,7 @@ def locate() -> list[FfmpegInstall]:
     seen: set[str] = set()
     installs: list[FfmpegInstall] = []
     for path, source in _candidates():
+        path = real_executable(path)
         if not path.is_file():
             continue
         key = str(path.resolve()).lower()
@@ -187,6 +203,7 @@ def install_from(path: Path, source: str = "settings") -> FfmpegInstall | None:
     path = Path(path)
     if path.is_dir():
         path = path / ("ffmpeg.exe" if sys.platform == "win32" else "ffmpeg")
+    path = real_executable(path)
     if not path.is_file():
         return None
     try:

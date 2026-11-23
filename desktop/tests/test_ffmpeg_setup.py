@@ -7,7 +7,24 @@ import zipfile
 import httpx
 import pytest
 
+from twitchclipper.export import ffmpeg as ft
 from twitchclipper.export import ffmpeg_setup as fs
+
+
+@pytest.mark.parametrize("shim, real", [
+    ("chocolatey/bin/ffmpeg.exe", "chocolatey/lib/ffmpeg/tools/ffmpeg/bin/ffmpeg.exe"),
+    ("scoop/shims/ffmpeg.exe", "scoop/apps/ffmpeg/current/bin/ffmpeg.exe"),
+])
+def test_package_manager_shim_resolves_to_real_ffmpeg(tmp_path, shim, real):
+    for name in (shim, real):
+        (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / name).touch()
+    assert ft.real_executable(tmp_path / shim) == tmp_path / real
+
+
+def test_ordinary_ffmpeg_path_is_unchanged(tmp_path):
+    path = tmp_path / "tools" / "bin" / "ffmpeg.exe"
+    assert ft.real_executable(path) == path
 
 
 def _zip(members: dict[str, bytes]) -> bytes:
